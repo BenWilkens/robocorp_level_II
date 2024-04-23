@@ -29,7 +29,7 @@ def open_robot_order_website():
     page = browser.page()
     page.wait_for_load_state()
     close_annoying_modal()
-    page.screenshot(path="outputs/screenshots/page_load.png", full_page=True)
+    page.screenshot(path="output/screenshots/page_load.png", full_page=True)
     
 
 def download_order_file():
