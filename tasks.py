@@ -23,8 +23,7 @@ def order_robots_from_RobotSpareBin():
 
 
 def open_robot_order_website():
-    # TODO: Implement your function here
-    """Open robot order web portal"""
+    """Opens robot order web portal"""
     browser.goto("https://robotsparebinindustries.com/#/robot-order") 
     page = browser.page()
     page.wait_for_load_state()
@@ -39,7 +38,7 @@ def download_order_file():
 
 
 def get_orders():
-    # Function code here
+    """Get Orders and create orders.csv"""
     library = Tables()
     orders = library.read_table_from_csv(
         "orders.csv", columns=["Order number","Head","Body","Legs","Address"]
@@ -47,6 +46,7 @@ def get_orders():
     return orders
 
 def fill_the_form(order):
+    """Fill in the form on the robot order site"""
     page = browser.page()
     heads = {
     "1" : "Roll-a-thor head",
@@ -58,69 +58,43 @@ def fill_the_form(order):
     }
     head = order["Head"]
     page.select_option("#head", heads.get(head))
-    # Order number,Head,Body,Legs,Address
-    
-    # Choose Head from dropdown
-    heads = {
-    "1" : "Roll-a-thor head",
-    "2" : "Peanut crusher head",
-    "3" : "D.A.V.E head",
-    "4" : "Andy Roid head",
-    "5" : "Spanner mate head",
-    "6" : "Drillbit 2000 head"
-    }
-    head = order["Head"]
-    page.select_option("#head", heads.get(head))
-    
-    # Click Body radion button
-    # default to 0 but replace using formatted string with Body option from each order
     page.click('//*[@id="root"]/div/div[1]/div/div[1]/form/div[2]/div/div[{0}]/label'.format(order["Body"]))
-    
-    # Enter legs
-    # page.fill("input[placeholder='Enter the part number for the legs']", order['Legs'])
     page.fill("input[placeholder='Enter the part number for the legs']", order["Legs"])
-
-    # Enter shipping address
     page.fill("xpath=/html/body/div[1]/div/div[1]/div/div[1]/form/div[4]/input", order['Address'])
     
 
 
 def close_annoying_modal():
+    """Dispatch popup alert on page load"""
     page = browser.page()
     page.click("button:text('OK')")
 
 def loop_and_process_orders():
+    """What it sounds like... Iterate and process all orders"""
     page = browser.page()
     orders = get_orders()
     for order in orders:
         fill_the_form(order)
-        # take a screenshot of the preview
         page.click("button:text('Preview')")
         page.wait_for_selector(selector="#robot-preview-image")
-        
-        # Submit order
         error_occured = True
-
         while error_occured:
             page.click("button:text('Order')")
             error_occured = page.locator("//div[@class= 'alert alert-danger']").is_visible()
             if not error_occured:
                 break
-        
-        # save PDF of receipt
         store_receipt_as_pdf(order["Order number"])
         page.click("#order-another")
         close_annoying_modal()
 
 
 def store_receipt_as_pdf(order_number):
-    """Store each receipt as a PDf"""
+    """Store each receipt as a PDF"""
     page = browser.page()
     receipt_html = page.locator("#receipt").inner_html()
     pdf = PDF()
     receipt_path = "output/receipts/order_{0}.pdf".format(order_number)
     pdf.html_to_pdf(receipt_html, receipt_path)
-    # Embed screenshot in each PDF
     screenshot_robot_preview(order_number)
     embed_screenshot_in_receipt_pdf("output/screenshots/order_"+order_number+".png", receipt_path)
 
@@ -134,6 +108,7 @@ def screenshot_robot_preview(order_number):
 
 
 def embed_screenshot_in_receipt_pdf(screenshot, receipt):
+    """Add screenshot to each PDF receipt"""
     pdf = PDF()
     pdf.add_files_to_pdf( files=[screenshot], target_document=receipt, append=True)
 
