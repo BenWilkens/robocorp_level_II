@@ -29,7 +29,7 @@ def open_robot_order_website():
     page = browser.page()
     page.wait_for_load_state()
     close_annoying_modal()
-    page.screenshot(path="screenshots/page_load.png", full_page=True)
+    page.screenshot(path="outputs/screenshots/page_load.png", full_page=True)
     
 
 def download_order_file():
@@ -118,11 +118,11 @@ def store_receipt_as_pdf(order_number):
     page = browser.page()
     receipt_html = page.locator("#receipt").inner_html()
     pdf = PDF()
-    receipt_path = "receipts/order_{0}.pdf".format(order_number)
+    receipt_path = "output/receipts/order_{0}.pdf".format(order_number)
     pdf.html_to_pdf(receipt_html, receipt_path)
     # Embed screenshot in each PDF
     screenshot_robot_preview(order_number)
-    embed_screenshot_in_receipt_pdf("screenshots/order_"+order_number+".png", receipt_path)
+    embed_screenshot_in_receipt_pdf("output/screenshots/order_"+order_number+".png", receipt_path)
 
 
 
@@ -130,7 +130,7 @@ def store_receipt_as_pdf(order_number):
 def screenshot_robot_preview(order_number):
     """Screenshot the robot preview"""
     page = browser.page()
-    page.locator(selector="#robot-preview-image").screenshot(path="screenshots/order_"+order_number+".png")
+    page.locator(selector="#robot-preview-image").screenshot(path="output/screenshots/order_"+order_number+".png")
 
 
 def embed_screenshot_in_receipt_pdf(screenshot, receipt):
@@ -141,4 +141,4 @@ def embed_screenshot_in_receipt_pdf(screenshot, receipt):
 def archive_receipts():
     """Create Zip Archive of all reciepts"""
     lib = Archive()
-    lib.archive_folder_with_zip("receipts","receipts.zip",recursive=True)
+    lib.archive_folder_with_zip("output/receipts","receipts.zip",recursive=True)
